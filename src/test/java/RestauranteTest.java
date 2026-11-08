@@ -17,13 +17,13 @@ import model.producto.PlatoFuerte;
 import java.time.LocalDateTime;
 
 
-class RestauranteTest {
+public class RestauranteTest {
 
     private Restaurante restaurante;
     private Cliente cliente;
-    private PlatoFuerte bandeja;   // válido, precio de venta 24.000
-    private Bebida limonada;       // válida, precio de venta 5.500
-    private PlatoFuerte platoMalo; // peso 100 g (< 200): no cumple calidad
+    private PlatoFuerte bandeja;
+    private Bebida limonada;
+    private PlatoFuerte platoMalo;
 
     @BeforeEach
     void setUp() {

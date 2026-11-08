@@ -134,43 +134,44 @@ public class Restaurante {
     }
 
     public boolean confirmarPedido(Pedido pedidoAConfirmar) {
-        if (pedidoAConfirmar == null) {
-            return false;
-        }
+        boolean sePuedeConfirmar = true;
 
-        for (Pedido pedidoRegistrado : listaPedidos) {
-            if (pedidoRegistrado.getCodigo().equalsIgnoreCase(pedidoAConfirmar.getCodigo())) {
-                return false;
+        if (pedidoAConfirmar == null || pedidoAConfirmar.getCliente() == null) {
+            sePuedeConfirmar = false;
+        } else {
+            if (buscarPedidoPorCodigo(pedidoAConfirmar.getCodigo()) != pedidoAConfirmar) {
+                sePuedeConfirmar = false;
+            }
+            if (pedidoAConfirmar.getEstado() != EstadoPedido.PENDIENTE) {
+                sePuedeConfirmar = false;
+            }
+            if (buscarClientePorDocumento(pedidoAConfirmar.getCliente().getNumeroDocumento()) == null) {
+                sePuedeConfirmar = false;
+            }
+            if (pedidoAConfirmar.getListaDetallePedido().isEmpty()) {
+                sePuedeConfirmar = false;
+            }
+            for (DetallePedido detalleActual : pedidoAConfirmar.getListaDetallePedido()) {
+                Producto productoEnMenu = buscarProductoPorCodigo(detalleActual.getProducto().getCodigo());
+                if (productoEnMenu == null || detalleActual.getCantidad() <= 0
+                        || !productoEnMenu.cumpleCondicionesCalidad()) {
+                    sePuedeConfirmar = false;
+                }
+            }
+            if (pedidoAConfirmar.getModalidadEntrega() == ModalidadEntrega.DOMICILIO) {
+                if (pedidoAConfirmar.getEmpresaDomicilio() == null
+                        || !pedidoAConfirmar.getEmpresaDomicilio().aceptaServicio(pedidoAConfirmar.getDistanciaKm())) {
+                    sePuedeConfirmar = false;
+                }
             }
         }
 
-        if (buscarClientePorDocumento(pedidoAConfirmar.getCliente().getNumeroDocumento()) == null) {
-            return false;
+        if (sePuedeConfirmar) {
+            pedidoAConfirmar.calcularValorTotal();
+            pedidoAConfirmar.actualizarEstado(EstadoPedido.CONFIRMADO);
+            pedidoAConfirmar.getCliente().agregarPedidoAlHistorial(pedidoAConfirmar);
         }
-
-        if (pedidoAConfirmar.getListaDetallePedido().isEmpty()) {
-            return false;
-        }
-
-        for (DetallePedido detalleActual : pedidoAConfirmar.getListaDetallePedido()) {
-            Producto productoEnMenu = buscarProductoPorCodigo(detalleActual.getProducto().getCodigo());
-            if (productoEnMenu == null || detalleActual.getCantidad() <= 0 || !productoEnMenu.cumpleCondicionesCalidad()) {
-                return false;
-            }
-        }
-
-        if (pedidoAConfirmar.getModalidadEntrega() == ModalidadEntrega.DOMICILIO) {
-            if (pedidoAConfirmar.getEmpresaDomicilio() == null ||
-                    !pedidoAConfirmar.getEmpresaDomicilio().aceptaServicio(pedidoAConfirmar.getDistanciaKm())) {
-                return false;
-            }
-        }
-
-        pedidoAConfirmar.calcularValorTotal();
-        pedidoAConfirmar.actualizarEstado(EstadoPedido.CONFIRMADO);
-        listaPedidos.add(pedidoAConfirmar);
-        pedidoAConfirmar.getCliente().agregarPedidoAlHistorial(pedidoAConfirmar);
-        return true;
+        return sePuedeConfirmar;
     }
 
     public List<Producto> consultarProductosDisponibles() {
