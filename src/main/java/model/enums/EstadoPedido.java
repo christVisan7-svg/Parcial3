@@ -1,8 +1,8 @@
 package model.enums;
 
 public enum EstadoPedido {
-    PENDIENDE,
+    PENDIENTE,
     CONFIRMADO,
     ENTREGADO,
-    CANCELADO, PENDIENTE;
+    CANCELADO,
 }
