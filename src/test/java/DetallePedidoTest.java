@@ -1,5 +1,8 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import model.core.DetallePedido;
+import model.enums.TipoPreparacion;
+import model.producto.PlatoFuerte;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,9 +12,9 @@ public class DetallePedidoTest {
 
     @BeforeEach
     void setUp() {
-        // precio base 20.000 -> precio de venta 24.000 (+20 %)
+
         bandeja = new PlatoFuerte("P01", "Bandeja paisa", "Plato típico", 20000, 30,
-                500, TipoPreparacion.A_LA_PLANCHA, true);
+        500, TipoPreparacion.A_LA_PLANCHA, true);
     }
 
     @Test
@@ -47,7 +50,7 @@ public class DetallePedidoTest {
     void precioAplicadoNoCambiaSiDespuesCambiaElPrecioBase() {
         DetallePedido detalle = new DetallePedido(bandeja, 2);
 
-        bandeja.setPrecioBase(30000); // el producto sube de precio después del pedido
+        bandeja.setPrecioBase(30000);
 
         assertEquals(24000, detalle.getPrecioVentaAplicado(), 0.01);
         assertEquals(48000, detalle.calcularSubtotal(), 0.01);
