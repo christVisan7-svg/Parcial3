@@ -46,6 +46,59 @@ public class Restaurante {
         return listaProductos.add(nuevoProducto);
     }
 
+    public boolean registrarPedido(Pedido pedido) {
+        boolean sePuedeRegistrar = true;
+        if (pedido == null) {
+            sePuedeRegistrar = false;
+        } else {
+        for (Pedido pedido1 : listaPedidos) {
+            if (pedido1.getCodigo().equals(pedido.getCodigo())) {
+                sePuedeRegistrar = false;
+                break;
+            }
+            }
+        }
+        if (sePuedeRegistrar) {
+            listaPedidos.add(pedido);
+        }
+        return sePuedeRegistrar;
+    }
+
+
+    public boolean registrarEmpresaDomicilio(EmpresaDomicilio empresa) {
+        boolean sePuedeRegistrar = true;
+
+        if (empresa == null) {
+            sePuedeRegistrar = false;
+
+        }else{
+            for (EmpresaDomicilio e : listaEmpresasDomicilio) {
+            if (e.getNombre().equals(empresa.getNombre())) {
+                sePuedeRegistrar = false;
+                }
+            }
+        }
+
+        if (sePuedeRegistrar) {
+            listaEmpresasDomicilio.add(empresa);
+        }
+        return sePuedeRegistrar;
+    }
+
+
+    public Pedido buscarPedidoPorCodigo(String codigo) {
+        Pedido pedidoEncontrado = null;
+        if (codigo != null) {
+
+        for (Pedido p : listaPedidos) {
+        if (p.getCodigo().equals(codigo)) {
+                    pedidoEncontrado = p;
+                }
+            }
+        }
+        return pedidoEncontrado;
+    }
+
     public boolean registrarCliente(Cliente nuevoCliente) {
         if (nuevoCliente == null || buscarClientePorDocumento(nuevoCliente.getNumeroDocumento()) != null) {
             return false;
