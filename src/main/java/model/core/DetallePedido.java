@@ -24,5 +24,29 @@ public class DetallePedido {
         double subtotal = precioVentaAplicado * cantidad;
         return subtotal;
     }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public double getPrecioVentaAplicado() {
+        return precioVentaAplicado;
+    }
+
+    public void setPrecioVentaAplicado(double precioVentaAplicado) {
+        this.precioVentaAplicado = precioVentaAplicado;
+    }
 }
 
