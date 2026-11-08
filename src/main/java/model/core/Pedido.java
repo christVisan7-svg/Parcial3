@@ -1,5 +1,10 @@
 package model.core;
 
+import model.domicilio.EmpresaDomicilio;
+import model.enums.EstadoPedido;
+import model.enums.ModalidadEntrega;
+import model.producto.Producto;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,5 +185,3 @@ import java.util.List;
             return sePuedeActualizar;
         }
     }
-
-}
