@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
     import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-    class PedidoTest {
+    public class PedidoTest {
 
         private Cliente cliente;
         private PlatoFuerte bandeja;
@@ -63,7 +63,7 @@ import org.junit.jupiter.api.Test;
 
         @Test
         void valorTotalConDomicilio() {
-            pedidoDomicilio.agregarDetalle(bandeja, 2); // 48.000 + (5.000 + 1.500 x 5)
+            pedidoDomicilio.agregarDetalle(bandeja, 2);
 
             assertEquals(12500, pedidoDomicilio.calcularValorTotal() - pedidoDomicilio.calcularValorProductos(), 0.01);
             assertEquals(60500, pedidoDomicilio.getValorTotal(), 0.01);
