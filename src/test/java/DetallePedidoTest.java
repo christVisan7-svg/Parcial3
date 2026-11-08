@@ -1,5 +1,8 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import model.core.DetallePedido;
+import model.enums.TipoPreparacion;
+import model.producto.PlatoFuerte;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
