@@ -1,8 +1,10 @@
 package main;
 
+import java.util.List;
 import java.util.Scanner;
 
 import model.core.Cliente;
+import model.core.DetallePedido;
 import model.core.Pedido;
 import model.core.Restaurante;
 import model.enums.EstadoPedido;
@@ -355,15 +357,124 @@ public class Aplicacion {
                     break;
                 case 9:
                     System.out.println("--- 9. CALCULAR VALOR TOTAL DE UN PEDIDO ---");
+                    System.out.print("Ingrese el código del pedido a consultar: ");
+                    String codigoTotal = scanner.nextLine();
+                    Pedido pedidoTotal = restaurante.buscarPedidoPorCodigo(codigoTotal);
+                    if (pedidoTotal == null) {
+                        System.out.println("Error: No se encontró ningún pedido registrado con el código " + codigoTotal);
+                    } else {
+                        double totalCalculado = pedidoTotal.calcularValorTotal();
+                        System.out.println("--> INFORMACIÓN DEL PEDIDO: " + pedidoTotal.getCodigo());
+                        System.out.println("Cliente: " + pedidoTotal.getCliente().getNombreCompleto());
+                        System.out.println("Estado actual: " + pedidoTotal.getEstado());
+                        System.out.println("Modalidad de entrega: " + pedidoTotal.getModalidadEntrega());
+                        System.out.println("Subtotal de productos: $" + pedidoTotal.calcularValorProductos());
+
+                        if (pedidoTotal.getModalidadEntrega() == ModalidadEntrega.DOMICILIO) {
+                            String empresaNombre = (pedidoTotal.getEmpresaDomicilio() != null)
+                                    ? pedidoTotal.getEmpresaDomicilio().getClass().getSimpleName()
+                                    : "No asignada";
+                            System.out.println("Empresa de domicilio: " + empresaNombre);
+                            System.out.println("Distancia de entrega: " + pedidoTotal.getDistanciaKm() + " km");
+                            System.out.println("Costo de envío: $" + pedidoTotal.getCostoDomicilio());
+                        }
+                        System.out.println("--> VALOR TOTAL CALCULADO: $" + totalCalculado);
+                    }
                     break;
                 case 10:
                     System.out.println("--- 10. CONSULTAR HISTORIAL DE PEDIDOS DE UN CLIENTE ---");
+                    System.out.print("Digite el número de documento del cliente a consultar: ");
+                    String documentoHistorial = scanner.nextLine();
+                    Cliente clienteHistorial = restaurante.buscarClientePorDocumento(documentoHistorial);
+                    if (clienteHistorial == null) {
+                        System.out.println("Error: No existe ningún cliente registrado con el documento " + documentoHistorial);
+                    } else {
+                        List<Pedido> historial = restaurante.consultarHistorialCliente(documentoHistorial);
+                        if (historial.isEmpty()) {
+                            System.out.println("El cliente " + clienteHistorial.getNombreCompleto() + " no registra pedidos en su historial.");
+                        } else {
+                            System.out.println("--> HISTORIAL DE PEDIDOS DE: " + clienteHistorial.getNombreCompleto());
+                            for (Pedido p : historial) {
+                                System.out.println("\n  Código del pedido: " + p.getCodigo() +
+                                        " | Estado: " + p.getEstado() +
+                                        " | Modalidad: " + p.getModalidadEntrega());
+                                System.out.println("  Productos adquiridos:");
+                                for (DetallePedido detalle : p.getListaDetallePedido()) {
+                                    System.out.println("    - " + detalle.getProducto().getNombre() +
+                                            " | Cantidad: " + detalle.getCantidad() +
+                                            " | Subtotal: $" + detalle.calcularSubtotal());
+                                }
+                                if (p.getModalidadEntrega() == ModalidadEntrega.DOMICILIO) {
+                                    System.out.println("  Costo de domicilio: $" + p.getCostoDomicilio());
+                                }
+                                System.out.println("  Valor total del pedido: $" + p.getValorTotal());
+                            }
+                        }
+                    }
                     break;
                 case 11:
                     System.out.println("--- 11. ACTUALIZAR ESTADO DE UN PEDIDO ---");
+                    System.out.print("Ingrese el código del pedido a actualizar (ej: PED-01): ");
+                    String codigoEstado = scanner.nextLine();
+                    Pedido pedidoEstado = restaurante.buscarPedidoPorCodigo(codigoEstado);
+                    if (pedidoEstado == null) {
+                        System.out.println("Error: No se encontró ningún pedido registrado con el código " + codigoEstado);
+                    } else {
+                        System.out.println("--> INFORMACIÓN DEL PEDIDO: " + pedidoEstado.getCodigo());
+                        System.out.println("Cliente: " + pedidoEstado.getCliente().getNombreCompleto());
+                        System.out.println("Estado actual: " + pedidoEstado.getEstado());
+                        System.out.println("\nSeleccione el nuevo estado deseado (ingrese el número de la opción):");
+                        System.out.println("1. CONFIRMADO");
+                        System.out.println("2. ENTREGADO");
+                        System.out.println("3. CANCELADO");
+                        System.out.print("Ingrese el número de la opción: ");
+                        int opcionEstado = scanner.nextInt();
+                        scanner.nextLine();
+                        EstadoPedido nuevoEstado = null;
+                        if (opcionEstado == 1) {
+                            nuevoEstado = EstadoPedido.CONFIRMADO;
+                        } else if (opcionEstado == 2) {
+                            nuevoEstado = EstadoPedido.ENTREGADO;
+                        } else if (opcionEstado == 3) {
+                            nuevoEstado = EstadoPedido.CANCELADO;
+                        }
+                        if (nuevoEstado == null) {
+                            System.out.println("Opción de estado no válida.");
+                        } else {
+                            boolean actualizado = pedidoEstado.actualizarEstado(nuevoEstado);
+                            if (actualizado) {
+                                System.out.println("--> ¡ESTADO ACTUALIZADO EXITOSAMENTE!");
+                                System.out.println("El pedido " + pedidoEstado.getCodigo() + " cambió su estado a: " + nuevoEstado);
+                            } else {
+                                System.out.println("--> ERROR AL ACTUALIZAR EL ESTADO");
+                                System.out.println("No es posible cambiar de estado " + pedidoEstado.getEstado() + " a " + nuevoEstado + ".");
+                                System.out.println("Recuerde las reglas de transición:");
+                                System.out.println(" - De PENDIENTE sólo se puede pasar a CONFIRMADO o CANCELADO.");
+                                System.out.println(" - De CONFIRMADO sólo se puede pasar a ENTREGADO o CANCELADO.");
+                                System.out.println(" - Un pedido en estado ENTREGADO o CANCELADO ya es final y no se puede modificar.");
+                            }
+                        }
+                    }
                     break;
                 case 12:
                     System.out.println("--- 12. GENERAR REPORTE GENERAL DE VENTAS ---");
+                    double ingresosPropios = restaurante.calcularIngresosPropiosRestaurante();
+                    double ingresosDomicilio = restaurante.calcularIngresosTotalesDomicilio();
+                    double ingresosTotales = ingresosPropios + ingresosDomicilio;
+                    Producto productoMasVendido = restaurante.obtenerProductoMasVendido();
+                    String categoriaMayorIngreso = restaurante.obtenerCategoriaMayorIngreso();
+                    System.out.println("--> REPORTE GENERAL DE VENTAS Y ESTADÍSTICAS");
+                    System.out.println("Ingresos propios del restaurante (Ventas de menú): $" + ingresosPropios);
+                    System.out.println("Ingresos totales por domicilios (Recargo de envío): $" + ingresosDomicilio);
+                    System.out.println("Ingreso total recaudado (Menú + Domicilios): $" + ingresosTotales);
+                    System.out.println("------------------------------------------------");
+                    if (productoMasVendido != null) {
+                        System.out.println("Producto más vendido: " + productoMasVendido.getNombre() +
+                                " (Código: " + productoMasVendido.getCodigo() + ")");
+                    } else {
+                        System.out.println("Producto más vendido: Aún no hay ventas registradas en pedidos confirmados o entregados.");
+                    }
+                    System.out.println("Categoría que genera mayores ingresos: " + categoriaMayorIngreso);
                     break;
                 case 13:
                     System.out.println("--- SALIENDO DEL SISTEMA... ---");
