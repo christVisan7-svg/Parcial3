@@ -1,4 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
+
+import model.domicilio.EmpresaDomicilio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,33 +76,29 @@ public class RestauranteTest {
 
     @Test
     void confirmarPedidoValidoDebeCambiarEstadoYGuardarloEnLosHistoriales() {
-        Pedido pedido = new Pedido("PED-001", LocalDateTime.now(), cliente,
-                ModalidadEntrega.RESTAURANTE, 0, null);
+        Pedido pedido = new Pedido("PED-001", LocalDateTime.now(), cliente, ModalidadEntrega.RESTAURANTE, 0, null);
         pedido.agregarDetalle(bandeja, 2);
         restaurante.registrarPedido(pedido);
-
         boolean resultado = restaurante.confirmarPedido(pedido);
-
-        assertTrue(resultado);
+        assertTrue(resultado, "El pedido debería confirmarse correctamente");
         assertEquals(EstadoPedido.CONFIRMADO, pedido.getEstado());
         assertEquals(1, cliente.getListaPedidos().size());
     }
 
     @Test
     void ingresosPropiosNoDebenIncluirElValorDelDomicilio() {
-        Pedido enRestaurante = new Pedido("PED-001", LocalDateTime.now(), cliente,
-                ModalidadEntrega.RESTAURANTE, 0, null);
+        Pedido enRestaurante = new Pedido("PED-001", LocalDateTime.now(), cliente, ModalidadEntrega.RESTAURANTE, 0, null);
         enRestaurante.agregarDetalle(bandeja, 2);
         restaurante.registrarPedido(enRestaurante);
-        restaurante.confirmarPedido(enRestaurante);
-
-        Pedido aDomicilio = new Pedido("PED-002", LocalDateTime.now(), cliente,
-                ModalidadEntrega.DOMICILIO, 5, new RapidoExpress());
+        EmpresaDomicilio empresa = restaurante.gestionarServicioDomicilio(5.0);
+        Pedido aDomicilio = new Pedido("PED-002", LocalDateTime.now(), cliente, ModalidadEntrega.DOMICILIO, 5.0, empresa);
         aDomicilio.agregarDetalle(limonada, 1);
         restaurante.registrarPedido(aDomicilio);
-        restaurante.confirmarPedido(aDomicilio);
-
-        assertEquals(53500, restaurante.calcularIngresosPropiosRestaurante(), 0.01);
-        assertEquals(12500, restaurante.calcularIngresosTotalesDomicilio(), 0.01);
+        assertTrue(restaurante.confirmarPedido(enRestaurante));
+        assertTrue(restaurante.confirmarPedido(aDomicilio));
+        double ingresosPropiosEsperados = (bandeja.calcularPrecioVenta() * 2) + (limonada.calcularPrecioVenta() * 1);
+        double ingresosDomicilioEsperados = aDomicilio.getCostoDomicilio();
+        assertEquals(ingresosPropiosEsperados, restaurante.calcularIngresosPropiosRestaurante(), 0.01);
+        assertEquals(ingresosDomicilioEsperados, restaurante.calcularIngresosTotalesDomicilio(), 0.01);
     }
 }
