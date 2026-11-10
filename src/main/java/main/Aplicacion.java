@@ -55,6 +55,12 @@ public class Aplicacion {
                     int tipoProducto = scanner.nextInt();
                     scanner.nextLine();
 
+                    if (tipoProducto != 1 &&  tipoProducto != 2 && tipoProducto != 3){
+                        System.out.println("Error: Categoría de producto no reconocida. Ingresa una categoría permitida.");
+                        System.out.println("No se registró ningún producto.");
+                        break;
+                    }
+
                     System.out.print("Cree y digite un nuevo código único para el producto (ej: PF01, BE01, PO01): ");
                     String codigo = scanner.nextLine();
 
